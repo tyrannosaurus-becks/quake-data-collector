@@ -3,7 +3,7 @@ from datetime import date, timedelta
 import io
 import json
 from os import getenv
-import urllib3
+from urllib3 import PoolManager
 
 
 def lambda_handler(event, context):
@@ -50,10 +50,11 @@ def get_seismic_activity(hours_ago, min_latitude, min_longitude, max_latitude, m
     for key, value in query_params.items():
         request_url += f"&{key}={value}"
 
-    resp = urllib3.request("GET", request_url)
+    http = PoolManager()
+    resp = http.request("GET", request_url)
     if resp.status != 200:
         raise Exception(resp.status)
-    return resp.json()["features"]
+    return json.loads(resp.data.decode('utf-8'))["features"]
 
 
 def format_date(dt):
@@ -62,4 +63,3 @@ def format_date(dt):
 
 if __name__ == "__main__":
     lambda_handler({}, {})
-
