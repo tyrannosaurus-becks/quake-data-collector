@@ -18,19 +18,14 @@ def lambda_handler(event, context):
 
     s3 = boto3.client('s3')
     for event in seismic_activity:
-        event_id = extract_id(event["properties"]["url"])
+        seismic_event_id = event["id"]
         event_bytes = io.BytesIO(json.dumps(event).encode('utf-8'))
         s3.put_object(
             Bucket=s3_bucket,
-            Key=f"raw/usgs/{event_id}",
+            Key=f"raw/usgs/{seismic_event_id}",
             Body=event_bytes,
             ContentType='application/json'
         )
-
-
-def extract_id(url):
-    url_fields = url.split("/")
-    return url_fields[-1]
 
 
 # This returns quakes and explosions.
